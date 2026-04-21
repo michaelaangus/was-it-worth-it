@@ -2,7 +2,19 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+**Was It Worth It?** — a reflection-based discretionary spending tracker for college students and early-career young adults. Users log purchases, wait through a configurable reflection window (default 14 days), then evaluate whether each purchase was Worth It / Not Worth It / Uncertain, and review category-level satisfaction patterns over time.
+
+Built as a pnpm workspace monorepo using TypeScript.
+
+## Artifacts
+
+- `artifacts/was-it-worth-it` — React + Vite frontend at `/` (landing page) and `/app/*` (product). Bold dark UI per the prototype prompt.
+- `artifacts/api-server` — Express 5 API at `/api` (purchases, reflections, dashboard, insights, profile).
+- `artifacts/mockup-sandbox` — design sandbox (not deployed).
+
+## Database
+
+Postgres on **Supabase** (external). Connection string is in the `SUPABASE_DATABASE_URL` secret. `lib/db` falls back to it when `DATABASE_URL` isn't set. Schema lives in `lib/db/src/schema/` (purchases, reflections, profile). Push schema with `pnpm --filter @workspace/db run push`. Seed sample data with `pnpm --filter @workspace/scripts run seed`.
 
 ## Stack
 

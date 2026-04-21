@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Was It Worth It?"
+version = "1.0.0"
+id = "artifacts/was-it-worth-it"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25978
+
+[services.development]
+run = "pnpm --filter @workspace/was-it-worth-it run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/was-it-worth-it", "run", "build" ]
+publicDir = "artifacts/was-it-worth-it/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25978"
+BASE_PATH = "/"

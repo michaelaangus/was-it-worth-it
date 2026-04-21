@@ -3,20 +3,23 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Was It Worth It? — reflection-based discretionary spending tracker
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: purchases
+  - name: reflections
+  - name: insights
+  - name: dashboard
+  - name: profile
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +27,357 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Dashboard summary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /purchases:
+    get:
+      operationId: listPurchases
+      tags: [purchases]
+      summary: List purchases
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/PurchaseStatus"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/Category"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Purchase"
+    post:
+      operationId: createPurchase
+      tags: [purchases]
+      summary: Log a new purchase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePurchaseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+
+  /purchases/{id}:
+    get:
+      operationId: getPurchase
+      tags: [purchases]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updatePurchase
+      tags: [purchases]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePurchaseInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+
+  /purchases/{id}/reflection:
+    post:
+      operationId: submitReflection
+      tags: [reflections]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitReflectionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseDetail"
+
+  /insights:
+    get:
+      operationId: getInsights
+      tags: [insights]
+      summary: Spending pattern insights by category
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Insights"
+
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    patch:
+      operationId: updateProfile
+      tags: [profile]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    PurchaseStatus:
+      type: string
+      enum: [waiting, reflected]
+
+    Verdict:
+      type: string
+      enum: [worth_it, not_worth_it, uncertain]
+
+    Category:
+      type: string
+      enum: [food, clothing, entertainment, subscriptions, travel, other]
+
+    Purchase:
+      type: object
+      required:
+        [id, name, amount, category, purchaseDate, status, readyForReflection, createdAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        amount:
+          type: number
+        category:
+          $ref: "#/components/schemas/Category"
+        purchaseDate:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/PurchaseStatus"
+        readyForReflection:
+          type: boolean
+        readyAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    Reflection:
+      type: object
+      required: [id, purchaseId, verdict, reflectedAt]
+      properties:
+        id:
+          type: string
+        purchaseId:
+          type: string
+        verdict:
+          $ref: "#/components/schemas/Verdict"
+        comments:
+          type: string
+        reflectedAt:
+          type: string
+          format: date-time
+
+    PurchaseDetail:
+      type: object
+      required: [purchase]
+      properties:
+        purchase:
+          $ref: "#/components/schemas/Purchase"
+        reflection:
+          $ref: "#/components/schemas/Reflection"
+
+    CreatePurchaseInput:
+      type: object
+      required: [name, amount, category, purchaseDate]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          minimum: 0
+        category:
+          $ref: "#/components/schemas/Category"
+        purchaseDate:
+          type: string
+          format: date
+
+    UpdatePurchaseInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        amount:
+          type: number
+          minimum: 0
+        category:
+          $ref: "#/components/schemas/Category"
+        purchaseDate:
+          type: string
+          format: date
+
+    SubmitReflectionInput:
+      type: object
+      required: [verdict]
+      properties:
+        verdict:
+          $ref: "#/components/schemas/Verdict"
+        comments:
+          type: string
+
+    DashboardSummary:
+      type: object
+      required:
+        [readyForReflectionCount, totalPurchases, totalReflected, nextPending]
+      properties:
+        readyForReflectionCount:
+          type: integer
+        totalPurchases:
+          type: integer
+        totalReflected:
+          type: integer
+        nextPending:
+          $ref: "#/components/schemas/Purchase"
+
+    CategoryInsight:
+      type: object
+      required: [category, totalReflected, worthItCount, notWorthItCount, uncertainCount, worthItPercent, totalSpent]
+      properties:
+        category:
+          $ref: "#/components/schemas/Category"
+        totalReflected:
+          type: integer
+        worthItCount:
+          type: integer
+        notWorthItCount:
+          type: integer
+        uncertainCount:
+          type: integer
+        worthItPercent:
+          type: number
+        totalSpent:
+          type: number
+
+    Insights:
+      type: object
+      required: [categories, overallWorthItPercent, totalSpent, regretSpent]
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryInsight"
+        overallWorthItPercent:
+          type: number
+        totalSpent:
+          type: number
+        regretSpent:
+          type: number
+
+    Profile:
+      type: object
+      required: [reflectionWindowDays, emailReminders, inAppReminders]
+      properties:
+        reflectionWindowDays:
+          type: integer
+          minimum: 1
+          maximum: 90
+        emailReminders:
+          type: boolean
+        inAppReminders:
+          type: boolean
+
+    UpdateProfileInput:
+      type: object
+      properties:
+        reflectionWindowDays:
+          type: integer
+          minimum: 1
+          maximum: 90
+        emailReminders:
+          type: boolean
+        inAppReminders:
+          type: boolean
