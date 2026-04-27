@@ -5,10 +5,10 @@ generated = []
 id = "Zv6DvKFB3qlS5vM6i6q_3"
 uri = "file://was-it-worth-it-azure.zip"
 type = "unspecified"
-title = "Was It Worth It? — Azure App Service deployment bundle"
+title = "Was It Worth It? — Azure bundle (Node 22 LTS)"
 
 [[outputs]]
 id = "najHaceeEHKjJ4PpGqzfe"
 uri = "file://AZURE_DEPLOY.md"
 type = "text"
-title = "Step-by-step Azure deployment guide"
+title = "Step-by-step Azure deployment guide (updated)"

@@ -1,8 +1,9 @@
 # Deploying "Was It Worth It?" to Azure App Service
 
 This guide walks you through deploying the production bundle to **Azure
-App Service** (Linux, Node 20). The bundle in `azure-deploy/` is fully
-self-contained — there are no monorepo or pnpm steps required on Azure.
+App Service** (Linux, Node 22 LTS). The bundle in `azure-deploy/` is
+fully self-contained — there are no monorepo or pnpm steps required on
+Azure.
 
 > Estimated time: **15–20 minutes**.
 
@@ -42,7 +43,8 @@ self-contained — there are no monorepo or pnpm steps required on Azure.
    - **Name**: pick a globally unique name, e.g. `was-it-worth-it-yourname`.
      This becomes your URL: `https://<name>.azurewebsites.net`.
    - **Publish**: **Code**
-   - **Runtime stack**: **Node 20 LTS**
+   - **Runtime stack**: **Node 22 LTS** (Node 20 LTS reaches end-of-life
+     on April 30, 2026 — pick 22)
    - **Operating system**: **Linux**
    - **Region**: same region as your resource group.
 4. **Pricing plan**: click **Create new** and choose a plan, or pick the

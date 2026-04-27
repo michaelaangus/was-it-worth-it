@@ -66,7 +66,7 @@ const pkg = {
     start: "node --enable-source-maps index.mjs",
   },
   engines: {
-    node: ">=20 <23",
+    node: ">=22 <23",
   },
 };
 writeFileSync(
